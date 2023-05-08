@@ -74,7 +74,7 @@ while True:
 storage_array = np.array(storage_array)
 webpage_data = pd.DataFrame(data=storage_array, columns=columns)
 # print(webpage_data)
-webpage_data.to_json('valencia_marathon_data_2022.json')
-webpage_data.to_csv('valencia_marathon_data_2022.csv', index=False)
+webpage_data.to_json('valencia_marathon_2022.json')
+webpage_data.to_csv('valencia_marathon_2022.csv', index=False)
 
 driver.quit()

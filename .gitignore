@@ -1,0 +1,19 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+
+# Constants like API TOKENS
+constants.py
+
+# VSCode
+.vscode/
+.idea
+
+# Scrapy:
+.scrapy
+
+# Environment
+.env
+
+# IPython
+.ipynb_checkpoints
