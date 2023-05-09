@@ -5,15 +5,17 @@ from selenium.webdriver.common.by import By
 import pandas as pd
 import numpy as np
 import time
+import os
 from config import config
 
 
 class WebsiteScraper:
     def __init__(self, website_url=config.DATA_URL, button_css_selector='a.paginate_button.next',
-                 table_css_selector='table.hover.dataTable.no-footer'):
+                 table_css_selector='table.hover.dataTable.no-footer', file_saver=True):
         self.website_url = website_url
         self.button_css_selector = button_css_selector
         self.table_css_selector = table_css_selector
+        self.file_saver = file_saver
         self.head_columns = []
         self.storage_array = None
         self.number_of_pages = 0
@@ -53,15 +55,15 @@ class WebsiteScraper:
         webpage_table = driver.find_element(By.CSS_SELECTOR, self.table_css_selector)
 
         # Create a table with columns names
-        head_columns: [str] = []
+        self.head_columns = []
         table_head = webpage_table.find_element(By.TAG_NAME, 'thead')
         table_row_heads = table_head.find_elements(By.XPATH, '//tr/th')
         for head in table_row_heads:
-            head_columns.append(head.text)
+            self.head_columns.append(head.text)
 
         # Specify the final page number
         number_of_pages = driver.find_elements(By.CSS_SELECTOR, 'a.paginate_button')
-        number_of_pages = int(number_of_pages[-2].text)
+        self.number_of_pages = int(number_of_pages[-2].text)
 
         # Create an array to store data from the webpage no. 1
         self.storage_array: np.ndarray = self.collect_data_from_page(webpage_table)
@@ -88,19 +90,22 @@ class WebsiteScraper:
                 break
 
         # Convert list to NumPy ndarray and into DataFrame
-        storage_array = np.array(self.storage_array)
-        webpage_data = pd.DataFrame(data=storage_array, columns=head_columns)
+        self.storage_array = np.array(self.storage_array)
+        webpage_data = pd.DataFrame(data=self.storage_array, columns=self.head_columns)
 
         driver.quit()
-
-        return webpage_data
+        # Decide if return DataFrame with data or export data ot json and csv files
+        if self.file_saver:
+            self.save_data_to_file(webpage_data)
+        else:
+            return webpage_data
 
     @staticmethod
     def save_data_to_file(webpage_data):
         """Save stored data into .json and .csv files"""
-        webpage_data.to_json('valencia_marathon_2022.json')
-        webpage_data.to_csv('valencia_marathon_2022.csv', index=False)
+        webpage_data.to_json(os.path.join(config.DATA_DIR, 'valencia_marathon_2022.json'))
+        webpage_data.to_csv(os.path.join(config.DATA_DIR, 'valencia_marathon_2022.csv'), index=False)
 
 
 if __name__ == '__main__':
-    WebsiteScraper.save_data_to_file(WebsiteScraper().scrape_website_data())
+    WebsiteScraper().scrape_website_data()
