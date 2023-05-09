@@ -81,8 +81,6 @@ class WebsiteScraper:
 
             # Update active site variable to break loop at the end of the available data
             active_site = driver.find_element(By.CSS_SELECTOR, 'a.paginate_button.current')
-            # Indicate the current page number
-            # print('Active site:', active_site.text)
 
             # Finish fetching data after getting to the last page
             if int(active_site.text) == number_of_pages:
